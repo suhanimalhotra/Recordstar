@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load bootstrap5 %}
+{% block title %}Return CD{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+      <h2 class="mb-0">Return CD</h2>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-3">
+          {% if cd_request.cd.cover_image %}
+            <img src="{{ cd_request.cd.cover_image.url }}" alt="Cover" class="img-fluid">
+          {% else %}
+            <div class="bg-light text-center p-5">No Cover Image</div>
+          {% endif %}
+        </div>
+        <div class="col-md-9">
+          <h4>{{ cd_request.cd.title }} by {{ cd_request.cd.artist }}</h4>
+          
+          {% if request.user.profile.is_librarian %}
+            <p>Currently checked out to: {{ cd_request.requester.username }}</p>
+          {% else %}
+            <p>Borrowed from library</p>
+          {% endif %}
+          
+          <p>Due date: {{ cd_request.cd.due_date|date:"F j, Y" }}</p>
+          
+          <div class="alert alert-info">
+            Are you sure you want to mark this CD as returned?
+          </div>
+          
+          <form method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Confirm Return</button>
+            <a href="{% url 'my_requests' %}" class="btn btn-outline-secondary">Cancel</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

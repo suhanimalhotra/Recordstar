@@ -1,0 +1,389 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload Profile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Open Sans', sans-serif;
+      margin: 0;
+      background-color: #fff;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .form-container {
+      max-width: 350px;
+      width: 100%;
+    }
+    .form-label {
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 0.3rem;
+    }
+    .form-control {
+      border: none;
+      border-bottom: 1px solid #ccc;
+      border-radius: 0;
+      box-shadow: none;
+      padding-left: 0;
+      font-size: 0.95rem;
+    }
+    .form-control:focus {
+      border-color: #000;
+      box-shadow: none;
+    }
+    .signin-btn {
+      background-color: #560BAD;
+      color: white;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      padding: 0.6rem 0;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    .signin-btn:hover {
+      background-color: #7B3FE4;
+      transform: scale(1.03);
+      color: white;
+    }
+    .upload-btn {
+      color: white;
+      padding: 0.6rem 1.5rem;
+      font-weight: 600;
+      border-radius: 8px; 
+      background-color: #560BAD;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    .upload-btn:hover {
+      color: white;
+      background-color: #7B3FE4;
+      transform: scale(1.03);
+    }
+    .choose-btn {
+      font-weight: 600;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      background-color: white;
+      border: 1px solid black;
+      color: black;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    .choose-btn:hover {
+      background-color: black;
+      color: white;
+      transform: scale(1.03);
+    }
+    .section {
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      scroll-snap-align: start;
+    }
+    .slider-container {
+      display: flex;
+      width: 300vw;
+      height: 100vh;
+      transition: transform 0.6s ease-in-out;
+    }
+    .wrapper {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .dot-nav {
+      position: absolute;
+      bottom: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+    }
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: #ccc;
+      cursor: pointer;
+    }
+    .dot.active {
+      background-color: #AC46A1;
+    }
+    .arrow-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: linear-gradient(to bottom right, #8f2de6, #560BAD);
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      z-index: 10;
+    }
+    .arrow-btn:hover {
+      transform: translateY(-50%) scale(1.1);
+      background: linear-gradient(to bottom right, #9d5cf2, #7B3FE4);
+      box-shadow: 0 4px 12px rgba(123, 63, 228, 0.4);
+      transition: all 0.3s ease;
+    }
+    .arrow-icon {
+      height: 22px;
+      filter: brightness(0) invert(1);
+    }
+    .rotate-left {
+      transform: rotate(180deg);
+    }
+    .arrow-left {
+      left: 30px;
+    }
+    .arrow-right {
+      right: 30px;
+    }
+    .skip-button, .continue-button {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #7B3FE4;
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: none;
+    }
+    .logo {
+      position: absolute;
+      top: 20px;
+      left: 30px;
+    }
+    .fixed-footer {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      text-align: center;
+      padding: 0.75rem 1rem;
+      background: white;
+      font-size: 0.85rem;
+      color: #6c757d;
+      z-index: 9999;
+    }
+    
+  </style>
+</head>
+<body>
+  <div class="logo">
+    <img src="{% static 'images/rs logo design.png' %}" alt="RecordStar Logo" style="height: 38px;">
+  </div>
+
+  <div class="arrow-btn arrow-left" onclick="goToSlide(currentSlide - 1)">
+    <img src="https://cdn-icons-png.flaticon.com/512/130/130884.png" class="arrow-icon rotate-left">
+  </div>
+  <div class="arrow-btn arrow-right" onclick="goToSlide(currentSlide + 1)">
+    <img src="https://cdn-icons-png.flaticon.com/512/130/130884.png" class="arrow-icon">
+  </div>
+
+  <div class="wrapper">
+    <button id="continue-dashboard-btn" type="button" class="continue-button" onclick="redirectToDashboard()">Continue to Dashboard</button>
+
+    <div id="slider" class="slider-container">
+      <!-- Step 1: Welcome Message -->
+      <div class="section">
+        <h2 style="color: #560BAD;">Welcome {{ user.username }}!</h2>
+        {% if user.profile.account_type == 'L' %}
+          <p>As a <strong>Librarian</strong>, you can manage records, collections, and explore user libraries.</p>
+        {% else %}
+          <p>As a <strong>Patron</strong>, you can create records, build public collections, and explore your music library.</p>
+        {% endif %}
+      </div>
+
+      <!-- Step 2: Basic Info (no Save here now) -->
+      <div class="section">
+        <div class="container text-center" style="margin-top: 100px; padding-top: 10px;">
+          <div class="form-container mx-auto">
+            <h2 class="mb-3 fw-bold" style="color: #560BAD;">Create your Profile!</h2>
+            <form id="setup-form" method="post" onsubmit="return handleSetupSubmit(event)">
+              {% csrf_token %}
+              <div class="mb-3 text-start">
+                <label for="first_name" class="form-label">First Name</label>
+                <input type="text" name="first_name" id="first_name" class="form-control" placeholder="Enter your first name" required>
+              </div>
+              <div class="mb-3 text-start">
+                <label for="last_name" class="form-label">Last Name</label>
+                <input type="text" name="last_name" id="last_name" class="form-control" placeholder="Enter your last name" required>
+              </div>
+              <div class="mb-3 text-start">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" name="username" id="username" class="form-control" placeholder="Choose a username" required>
+              </div>
+              <div class="mb-4 text-start">
+                <label for="birthday" class="form-label">Birthday</label>
+                <input type="date" name="birthday" id="birthday" class="form-control" required>
+              </div>
+              <!-- no Save button here -->
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Upload PFP + Save -->
+      <div class="section">
+        <h2 style="color: #560BAD;">Upload a Profile Picture</h2>
+        <p>Upload your own profile picture. You must do this to finish setup.</p>
+        {% if user.profile.image %}
+          <div class="mb-3 text-center">
+            <img id="profile-preview" src="{{ user.profile.image.url }}" alt="Current Profile Picture"
+              style="height: 200px; width: 200px; object-fit: cover; border-radius: 50%; border: 2px solid #AC46A1;" />
+          </div>
+        {% endif %}
+        <form method="post" enctype="multipart/form-data" action="{% url 'dashboard' %}"
+              class="form-container mx-auto d-flex justify-content-center align-items-center gap-3 mt-4 flex-wrap">
+          {% csrf_token %}
+          <input type="file" name="profile_picture" id="file-upload" accept="image/*" required style="display: none;" onchange="previewProfilePicture(event)">
+          <label for="file-upload" class="btn choose-btn">
+            Choose File
+          </label>
+          <button type="button" class="btn upload-btn" onclick="handleUpload()">
+            Upload
+          </button>
+          <!-- full-width Save -->
+          <button type="submit" class="btn signin-btn w-100 mt-3">Save</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="dot-nav">
+    <div class="dot active" onclick="goToSlide(0)"></div>
+    <div class="dot" onclick="goToSlide(1)"></div>
+    <div class="dot" onclick="goToSlide(2)"></div>
+  </div>
+
+  <script>
+    async function handleSetupSubmit(event) {
+      event.preventDefault();
+      const form = document.getElementById('setup-form');
+      const formData = new FormData(form);
+      const response = await fetch("{% url 'first_time_setup' %}", {
+        method: 'POST',
+        headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+        body: formData,
+        redirect: 'follow'
+      });
+      if (response.redirected) {
+        window.location.href = response.url;
+      } else if (response.ok) {
+        document.getElementById('continue-dashboard-btn').style.display = 'block';
+      } else {
+        alert("Failed to save your profile.");
+      }
+    }
+
+    let profilePicUploaded = false;
+    async function handleUpload() {
+      const fileInput = document.getElementById('file-upload');
+      const file = fileInput.files[0];
+      if (!file) { alert("Please choose a file first."); return; }
+      const data = new FormData();
+      data.append('profile_picture', file);
+      const response = await fetch("{% url 'first_time_setup' %}", {
+        method: 'POST',
+        headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+        body: data,
+      });
+      if (response.ok) {
+        profilePicUploaded = true;
+        checkFieldsForContinue();
+      } else {
+        alert("Failed to upload profile picture.");
+      }
+    }
+
+    function checkFieldsForContinue() {
+      const fields = ['first_name', 'last_name', 'username', 'birthday'];
+      const allFilled = fields.every(id => {
+        const el = document.getElementById(id);
+        return el && el.value.trim() !== '';
+      });
+      const continueBtn = document.getElementById('continue-dashboard-btn');
+      const hasProfilePic = document.getElementById('profile-preview').src.includes('media');  // ✅ means user uploaded pfp
+    
+      if (allFilled && hasProfilePic) {
+        continueBtn.style.display = 'block';
+        continueBtn.onclick = redirectToDashboard;
+      } else {
+        continueBtn.style.display = 'none';
+        continueBtn.onclick = null;
+      }
+    }
+
+    document.querySelectorAll('#first_name, #last_name, #username, #birthday')
+      .forEach(input => input.addEventListener('input', checkFieldsForContinue));
+
+    function redirectToDashboard() {
+      window.location.href = "{% url 'dashboard' %}";
+    }
+
+    let currentSlide = 0;
+    const totalSlides = 3;
+    const slider = document.getElementById('slider');
+    const dots = document.querySelectorAll('.dot');
+    const leftArrow = document.querySelector('.arrow-left');
+    const rightArrow = document.querySelector('.arrow-right');
+
+    function goToSlide(index) {
+      currentSlide = Math.max(0, Math.min(index, totalSlides - 1));
+      slider.style.transform = `translateX(-${currentSlide * 100}vw)`;
+      dots.forEach(dot => dot.classList.remove('active'));
+      dots[currentSlide].classList.add('active');
+      leftArrow.style.display = currentSlide === 0 ? 'none' : 'flex';
+      rightArrow.style.display = currentSlide === totalSlides - 1 ? 'none' : 'flex';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      goToSlide(0);
+      checkFieldsForContinue();
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight') goToSlide(currentSlide + 1);
+      else if (e.key === 'ArrowLeft') goToSlide(currentSlide - 1);
+    });
+
+    document.querySelector('.wrapper').addEventListener('wheel', e => {
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+        if (e.deltaX > 0) goToSlide(currentSlide + 1);
+        else goToSlide(currentSlide - 1);
+      }
+    });
+
+    function previewProfilePicture(event) {
+      const reader = new FileReader();
+      const image = document.getElementById('profile-preview');
+      reader.onload = () => image.src = reader.result;
+      if (event.target.files.length > 0) reader.readAsDataURL(event.target.files[0]);
+    }
+  </script>
+  <footer class="fixed-footer">
+    This system is a class project. It is not monitored, and no real information should be submitted.
+  </footer>
+  
+  
+</body>
+</html>

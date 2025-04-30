@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+  <div class="d-flex align-items-center gap-4">
+    <!-- Profile Image with Hover -->
+    <div class="position-relative">
+      <img src="{{ user.profile.image.url }}" alt="Profile Image" class="rounded-circle shadow" style="width: 250px; height: 250px; object-fit: cover;">
+      <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center align-items-center rounded-circle text-white fw-bold" style="background-color: rgba(0, 0, 0, 0.5); opacity: 0; transition: opacity 0.3s; cursor: pointer;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0'">
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          <label for="profileImageInput" class="d-flex flex-column align-items-center gap-3">
+            <i class="fas fa-pen fa-lg"></i>
+            <small>Choose photo</small>
+          </label>
+          <input type="file" name="profile_picture" id="profileImageInput" accept="image/*" class="d-none" onchange="this.form.submit();">
+        </form>
+      </div>
+    </div>
+
+    <!-- Profile Info -->
+    <div class="flex-grow-1">
+      <p class="mb-1 text-muted">{{ user.profile.get_account_type_display }}</p>
+      <div class="d-flex align-items-center justify-content-between">
+        <div class="position-relative">
+          <h1 class="display-4 fw-bold mb-0 hover-edit" id="usernameDisplay">
+            {{ user.username }}
+            <a href="#" class="ms-2 text-muted edit-icon" data-bs-toggle="modal" data-bs-target="#editUsernameModal">
+              <i class="fas fa-pen" style="font-size: 1.5rem;"></i>
+            </a>
+          </h1>
+        </div>
+        <!-- 3-dot dropdown -->
+        <div class="dropdown">
+          <button class="btn btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-ellipsis-h"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editBirthdayModal">Edit Birthday</a></li>
+          </ul>
+        </div>
+      </div>
+      <p class="text-muted mb-0 hover-edit">
+        <strong>Name:</strong> {{ user.first_name }} {{ user.last_name }}
+        <a href="#" class="ms-2 text-muted edit-icon" data-bs-toggle="modal" data-bs-target="#editNameModal">
+          <i class="fas fa-pen"></i>
+        </a>
+      </p>
+      <p class="text-muted mb-0"><strong>Joined:</strong> {{ user.date_joined|date:"F j, Y" }}</p>
+    </div>
+  </div>
+</div>
+
+<!-- Username Modal -->
+<div class="modal fade" id="editUsernameModal" tabindex="-1" aria-labelledby="editUsernameLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="POST" action="{% url 'edit_profile_info' %}">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title" id="editUsernameLabel">Change Username</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="text" class="form-control" name="username" value="{{ user.username }}" required>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Name Modal -->
+<div class="modal fade" id="editNameModal" tabindex="-1" aria-labelledby="editNameLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="POST" action="{% url 'edit_profile_info' %}">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title" id="editNameLabel">Edit Name</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="first_name" class="form-label">First Name</label>
+            <input type="text" class="form-control" name="first_name" value="{{ user.first_name }}" required>
+          </div>
+          <div class="mb-3">
+            <label for="last_name" class="form-label">Last Name</label>
+            <input type="text" class="form-control" name="last_name" value="{{ user.last_name }}" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Birthday Modal -->
+<div class="modal fade" id="editBirthdayModal" tabindex="-1" aria-labelledby="editBirthdayLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="POST" action="{% url 'edit_profile_info' %}">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title" id="editBirthdayLabel">Edit Birthday</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="date" name="birthday" class="form-control" max="{{ today|default_if_none:'' }}" required>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Password Modal -->
+<div class="modal fade" id="editPasswordModal" tabindex="-1" aria-labelledby="editPasswordLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="POST" action="{% url 'edit_profile_info' %}" onsubmit="return validatePasswordForm()">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title" id="editPasswordLabel">Change Password</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="password1" class="form-label">New Password</label>
+            <input type="password" class="form-control" id="password1" name="password1" required>
+            <div class="form-text">
+              Your password can’t be too similar to your other personal information.<br>
+              Must contain at least 8 characters.<br>
+              Can’t be a commonly used password or entirely numeric.
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="password2" class="form-label">Confirm Password</label>
+            <input type="password" class="form-control" id="password2" name="password2" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function validatePasswordForm() {
+    const pw1 = document.getElementById('password1').value;
+    const pw2 = document.getElementById('password2').value;
+
+    if (pw1.length < 8 || /^\d+$/.test(pw1) || pw1 !== pw2) {
+      alert("Please ensure your password is at least 8 characters long, not entirely numeric, and both fields match.");
+      return false;
+    }
+    return true;
+  }
+</script>
+
+<style>
+  .hover-edit .edit-icon {
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .hover-edit:hover .edit-icon {
+    opacity: 1;
+  }
+</style>
+
+{% endblock %}

@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+{% load bootstrap5 %}
+{% block title %}{{ user.username }}'s Friends{% endblock %}
+{% block content %}
+
+<div class="container-fluid min-vh-100 d-flex flex-column">
+  <!-- Top Half: User's Friends -->
+  <div class="flex-grow-1 d-flex align-items-start justify-content-center py-4" style="overflow-y: auto;">
+    <div class="w-100" style="max-width: 1200px;">
+      <h2 class="fw-bold text-center mb-4" style="color: #560BAD;">{{ user.username }}'s Friends</h2>
+
+      {% if friends %}
+        <div class="position-relative">
+          <!-- Left Arrow -->
+          <button id="leftArrow" class="arrow-btn position-absolute top-50 start-0 translate-middle-y d-none" onclick="scrollFriends(-1)">
+            <i class="fas fa-chevron-left fs-3"></i>
+          </button>
+      
+          <!-- Carousel -->
+          <div class="scrollable-friends-wrapper mb-4">
+            <button id="left-arrow" class="scroll-arrow d-none">&#8592;</button>
+          
+            <div id="friendCarousel" class="scrollable-friends-container d-flex">
+              {% for friend in friends %}
+              <div class="friend-hover-wrapper">
+                <div class="friend-card">              
+                  <img src="{{ friend.user.profile.image.url }}" class="rounded-circle shadow mb-2" style="width: 120px; height: 120px; object-fit: cover;">
+                  <p class="fw-semibold mb-1">{{ friend.user.username }}</p>
+                  <form action="{% url 'remove_friend' friend.user.id %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                  </form>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          
+            <button id="right-arrow" class="scroll-arrow d-none">&#8594;</button>
+          </div>
+          
+      
+          <!-- Right Arrow -->
+          <button id="rightArrow" class="arrow-btn position-absolute top-50 end-0 translate-middle-y d-none" onclick="scrollFriends(1)">
+            <i class="fas fa-chevron-right fs-3"></i>
+          </button>
+        </div>
+      {% else %}
+        <p class="text-muted text-center mb-5">You don't have any friends yet.</p>
+      {% endif %}
+      
+      
+
+  <!-- Bottom Half: Find New Friends -->
+  <div class="flex-grow-1 d-flex align-items-start justify-content-center py-4" style="overflow-y: auto;">
+    <div class="w-100" style="max-width: 800px;">
+      <h4 class="fw-bold text-center mb-4" style="color: #560BAD;">Friend Suggestions</h4>
+
+      {% if all_users %}
+      <ul class="list-group suggestions-list">
+        {% for user in all_users %}
+          {% if user.profile not in friends %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span>{{ user.username }}</span>
+              <form action="{% url 'add_friend' user.id %}" method="POST" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-primary">Add</button>
+              </form>
+            </li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+      {% else %}
+        <p class="text-muted text-center">No users found.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<style>
+  
+  .scrollable-friends-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 200px; /* Prevent height jumps */
+  }
+
+  .scrollable-friends-container {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    gap: 20px;
+    padding: 10px 0;
+    flex-grow: 1;
+  }
+
+  .scrollable-friends-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  .friend-hover-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .friend-card {
+    width: 140px;
+    text-align: center;
+    transition: transform 0.3s ease;
+  }
+
+  .friend-card form {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none; /* Prevents accidental clicks unless hovered */
+  }
+
+  .friend-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  .friend-hover-wrapper:hover .friend-card form {
+    opacity: 1;
+    pointer-events: auto; /* Now it's clickable */
+  }
+
+  .scroll-arrow {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: #560BAD;
+    cursor: pointer;
+    z-index: 2;
+  }
+
+  .scroll-arrow.d-none {
+    display: none !important;
+  }
+
+  /* Prevent shifting when scrollbar disappears */
+  .scrollable-friends-container {
+    padding-bottom: 1px;
+  }
+  .arrow-btn {
+    background: transparent;
+    border: none;
+    color: #560BAD;
+    z-index: 2;
+  }
+
+  #friendCarousel {
+    scroll-behavior: smooth;
+  }
+
+  /* suggestions-list: hide Add button until hover */
+.suggestions-list .btn {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.suggestions-list .list-group-item:hover .btn {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* override primary outline to purple */
+.suggestions-list .btn-outline-primary {
+  border-color: #7B3FE4;
+  color: #7B3FE4;
+}
+.suggestions-list .btn-outline-primary:hover {
+  background-color: #7B3FE4;
+  color: white;
+}
+</style>
+
+<script>
+  function scrollFriends(direction) {
+    const carousel = document.getElementById('friendCarousel');
+    const scrollAmount = 160;
+    carousel.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+  }
+
+  function updateLayout() {
+    const carousel = document.getElementById('friendCarousel');
+    const leftArrow = document.getElementById('leftArrow');
+    const rightArrow = document.getElementById('rightArrow');
+
+    const isOverflowing = carousel.scrollWidth > carousel.clientWidth + 10;
+
+    if (isOverflowing) {
+      carousel.classList.remove("justify-content-center");
+      leftArrow.classList.remove("d-none");
+      rightArrow.classList.remove("d-none");
+    } else {
+      carousel.classList.add("justify-content-center");
+      leftArrow.classList.add("d-none");
+      rightArrow.classList.add("d-none");
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const carousel = document.getElementById('friendCarousel');
+
+    updateLayout();
+
+    carousel.addEventListener("scroll", () => {
+      const scrollLeft = Math.round(carousel.scrollLeft);
+      const maxScrollLeft = Math.round(carousel.scrollWidth - carousel.clientWidth);
+      document.getElementById('leftArrow').classList.toggle('d-none', scrollLeft <= 0);
+      document.getElementById('rightArrow').classList.toggle('d-none', scrollLeft >= maxScrollLeft - 40);
+    });
+
+    window.addEventListener("resize", updateLayout);
+
+    document.querySelectorAll("form").forEach(form => {
+      form.addEventListener("submit", () => {
+        setTimeout(updateLayout, 300);
+      });
+    });
+  });
+</script>
+
+
+
+{% endblock %}
+

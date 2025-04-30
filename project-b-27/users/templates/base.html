@@ -1,0 +1,251 @@
+{% load bootstrap5 %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}RecordStar{% endblock %}</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- Bootstrap CSS using django-bootstrap5 -->
+  {% bootstrap_css %}
+  
+  <style>
+    body {
+      font-family: 'Open Sans', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .topbar {
+      position: fixed;
+      top: 0;
+      left: 240px;           /* match sidebar width */
+      right: 0;
+      height: 60px;          /* adjust to your header height */
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0 20px;
+      z-index: 2000;
+    }
+    /* Main content should start below topbar and beside sidebar */
+    .main-area {
+      margin-left: 240px;    /* same as sidebar width */
+      margin-top: 30px;
+      padding: 20px;
+      background: transparent;
+      min-height: calc(100vh - 60px);
+    }
+    /* Sidebar styling */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 240px;          /* adjust as needed */
+      min-height: 100vh;
+      overflow-y: auto;
+      background-color: #ebeff1;
+      padding: 20px;
+      z-index: 1000;
+    }
+    .sidebar h2 {
+      padding: 0.5rem;
+      font-weight: bold;
+    }
+    .sidebar ul {
+      list-style: none;
+      padding-left: 20px;
+    }
+    .sidebar li {
+      margin-bottom: 4px;
+    }
+    .sidebar li a {
+      text-decoration: none;
+      color: #333;
+    }
+    .sidebar li a:hover {
+      color: #9F86C0;
+    }
+    /* Search bar custom styles */
+    .search-container {
+      position: relative;
+      margin-bottom: 20px;
+    }
+    .sidebar ul.nav.flex-column {
+      margin-bottom: 0;      /* Remove bottom margin if any */
+      padding-left: 0;       /* Remove extra left padding */
+      gap: 0;                /* If your Bootstrap version supports gap directly in CSS */
+    }
+    
+    .sidebar .nav-item {
+      margin-bottom: 2px !important; /* Force a smaller margin between items */
+    }
+    
+    .sidebar .nav-link {
+      padding-top: 2px !important;   /* Reduce vertical padding */
+      padding-bottom: 2px !important;
+      line-height: 1.2 !important;   /* Tighten line spacing if desired */
+    }
+
+    .sidebar h2.h4 {
+      font-size: 20px !important; /* Make it same size as h4 */
+      font-weight: bold !important; /* Keep h2 boldness */
+      margin-top: 0.1rem; /* tweak as needed */
+      margin-bottom: 0.1rem;
+  }  
+
+  .sidebar h2.h4 > a.sidebar-link {
+    display: inline-block;
+    padding: 2px 0;
+    color: #333;
+    transition: color 0.2s ease;
+  }
+  
+  .sidebar h2.h4 > a.sidebar-link:hover {
+    color: #9F86C0 !important;
+  }
+  
+    
+  .search-container .fa-search {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+    font-size: 16px;
+  }
+  .search-container input[type="text"] {
+    padding-left: 36px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  
+    /* Add these ↓ */
+    height: 30px;           /* Controls input height */
+    font-size: 14px;        /* Shrinks the text to fit the smaller box */
+    line-height: 1.2;       /* Keeps text vertically aligned */
+  }  
+  .custom-login-btn {
+    background-color: #632fbd; /* deep purple background */
+    color: white;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    padding: 0.4rem 1.2rem;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+
+  .custom-login-btn:hover {
+    background-color: #7B3FE4; /* lighter purple on hover */
+    color: white;
+    transform: scale(1.05);
+  }
+  
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row" style="background-color: #fcfcfc;">
+      <!-- Sidebar -->
+      <nav class="col-md-3 col-lg-2 sidebar">
+        <a href="{% url 'dashboard' %}">
+          <img src="{% static 'images/rs logo design.png' %}" alt="RecordStar" class="recordstar-logo mb-3" style="height: 35px;">
+        </a>
+      
+        <div class="search-container">
+          <form action="{% url 'search_results' %}" method="GET">
+            <i class="fa fa-search"></i>
+            <input type="text" name="q" placeholder="Search..." class="form-control" value="{{ request.GET.q }}">
+          </form>
+        </div>
+      
+        <h2 class="h4">
+          <a href="{% url 'dashboard' %}" class="sidebar-link text-decoration-none text-dark">Home</a>
+        </h2>
+        
+    
+        {% if user.is_authenticated %}
+          <h2 class="h4">
+            <a href="{% url 'recent_activity' %}" class="sidebar-link text-decoration-none text-dark">Recent Activity</a>
+          </h2>
+    
+          <h2 class="h4 mt-2">Catalog</h2>
+          <ul class="nav flex-column">
+            <li class="nav-item"><a class="nav-link" href="{% url 'library' %}">Library</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'collection' %}">Collections</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'ratings' %}">Ratings</a></li>
+          </ul>
+    
+          <h2 class="mt-4 h4">Social</h2>
+          <ul class="nav flex-column">
+            <li class="nav-item"><a class="nav-link" href="{% url 'friends' %}">My Friends</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'librarians' %}">Librarians</a></li>
+          </ul>
+    
+          <h2 class="mt-4 h4">Request Center</h2>
+          <ul class="nav flex-column">
+            <li class="nav-item"><a class="nav-link" href="{% url 'my_requests' %}">My Requests</a></li>
+          </ul>
+        {% endif %}
+    
+        <h2 class="mt-4 h4">User Settings</h2>
+        <ul class="nav flex-column">
+          <li class="nav-item"><a class="nav-link" href="{% url 'profile' %}">Profile</a></li>
+        </ul>
+      </nav>
+      <!-- 🛑 CLOSE the sidebar nav here! -->
+    
+      <!-- 🆕 Main content area -->
+      <main class="col-md-9 col-lg-10 d-flex flex-column" style="background-color: #fcfcfc; width: 90%;">
+        <div class="topbar d-flex justify-content-end align-items-center p-3">
+          <div class="dropdown d-flex align-items-center">
+            {% if user.is_authenticated %}
+              {% if user.profile.image %}
+                <img src="{{ user.profile.image.url }}" alt="Profile Image" class="rounded-circle me-2" style="width: 36px; height: 36px; object-fit: cover;">
+              {% else %}
+                <img src="{% static 'images/default_profile.png' %}" alt="Default Profile Image" class="rounded-circle me-2" style="width: 36px; height: 36px; object-fit: cover;">
+              {% endif %}
+        
+              <a class="dropdown-toggle text-decoration-none" style="color: #632fbd;" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                {{ user.username }}
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="userDropdown">
+                <li><a class="dropdown-item" href="{% url 'profile' %}">Profile</a></li>
+                <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+              </ul>
+            {% else %}
+            <a class="btn custom-login-btn" href="{% url 'account_login' %}">Log In</a>
+            {% endif %}
+          </div>
+        </div>
+    
+        <div class="flex-fill p-3 main-area">
+          {% block content %}{% endblock %}
+        </div>
+    
+        {% block footer %}
+        <footer class="text-center mt-5 mb-3 text-muted">
+          This system is a class project. It is not monitored, and no real information should be submitted.
+        </footer>
+        {% endblock %}
+      </main>
+    </div> <!-- ✅ closes .row properly -->
+
+  </div>
+  <!-- Bootstrap JS using django-bootstrap5 -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

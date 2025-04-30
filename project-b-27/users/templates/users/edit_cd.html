@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load bootstrap5 %}
+
+{% block title %}Edit CD{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Edit CD</h2>
+  
+  <div class="card">
+    <div class="card-body">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="title" class="form-label">CD Title</label>
+            <input type="text" name="title" id="title" class="form-control" value="{{ cd.title }}" required>
+          </div>
+          <div class="col-md-6">
+            <label for="artist" class="form-label">Artist</label>
+            <input type="text" name="artist" id="artist" class="form-control" value="{{ cd.artist }}" required>
+          </div>
+          <div class="col-md-6">
+            <label for="genre" class="form-label">Genre</label>
+            <input type="text" name="genre" id="genre" class="form-control" value="{{ cd.genre }}" required>
+          </div>
+          <div class="col-md-6">
+            <label for="release_year" class="form-label">Release Year</label>
+            <input type="number" name="release_year" id="release_year" class="form-control" value="{{ cd.release_year|default_if_none:'' }}" required>
+          </div>
+          <div class="col-12">
+            <label for="description" class="form-label">Description</label>
+            <textarea name="description" id="description" class="form-control" rows="3" required>{{ cd.description }}</textarea>
+          </div>
+          <div class="col-12">
+            <label for="cover_image" class="form-label">Cover Image <span class="text-danger">*</span></label>
+            {% if cd.cover_image %}
+              <div class="mb-2">
+                <img src="{{ cd.cover_image.url }}" alt="Cover image" class="img-thumbnail" style="max-height: 200px;">
+              </div>
+              <input type="file" name="cover_image" id="cover_image" class="form-control">
+              <small class="text-muted">Leave empty to keep current image</small>
+            {% else %}
+              <input type="file" name="cover_image" id="cover_image" class="form-control" required>
+            {% endif %}
+          </div>
+          
+          {% if error %}
+            <div class="alert alert-danger mt-3">
+              {{ error }}
+            </div>
+          {% endif %}
+        </div>
+        <div class="mt-3">
+          <button type="submit" class="btn save-btn">Save Changes</button>
+          <a href="{% url 'library' %}" class="btn cancel-btn">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+.save-btn {
+  background-color: #7B3FE4;
+  color: white;
+  transition: transform 0.3 ease;
+}
+.save-btn:hover {
+  background-color: #560BAD;
+  color: white;
+  transform: scale(1.05);
+}
+.cancel-btn {
+  background-color: darkgrey;
+  color: black;
+  border: none;
+  transition: transform 0.3 ease;
+}
+.cancel-btn:hover {
+  background-color: #f92a2a;
+  color: white;
+  border: none;
+  transform: scale(1.05);
+}
+
+</style>
+{% endblock %}

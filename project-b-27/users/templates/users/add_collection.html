@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load bootstrap5 %}
+
+{% block title %}Add New Collection{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Create a New Collection</h2>
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="name" class="form-label">Collection Name</label>
+      <input type="text" name="name" id="name" class="form-control" placeholder="My Summer Playlist" required>
+    </div>
+    <div class="mb-3">
+      <label for="cover_image" class="form-label">Cover Image (optional)</label>
+      <input type="file" name="cover_image" id="cover_image" class="form-control">
+    </div>
+    <button type="submit" class="btn btn-primary">Create Collection</button>
+    <a href="{% url 'collection' %}" class="btn btn-secondary ms-2">Cancel</a>
+  </form>
+</div>
+{% endblock %}
+{% if request.user.profile.account_type == 'L' %}
+  <div class="form-check mb-3">
+    <input class="form-check-input" type="checkbox" name="is_public" id="is_public" checked>
+    <label class="form-check-label" for="is_public">Make collection public</label>
+  </div>
+{% endif %}

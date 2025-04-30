@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}{{ collection.name }}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <!-- Back Button -->
+  <div class="mb-3">
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">&larr; Back to Dashboard</a>
+  </div>
+
+  {% if collection.cover_image %}
+      <div class="text-center mb-4">
+        <img src="{{ collection.cover_image.url }}" class="img-fluid rounded"
+            style="max-height:300px; max-width:300px; object-fit:cover;" alt="Cover">
+      </div>
+  {% endif %}
+  
+  <h2 class="mb-3">{{ collection.name }}</h2>
+  <div class="alert alert-warning">
+    <i class="fas fa-lock"></i> This collection is private.
+  </div>
+  
+  <!-- collection_detail_limited.html -->
+  {% if user.is_authenticated %}
+    {% if has_requested %}
+      <div class="alert alert-info mt-3">
+        <i class="fas fa-clock"></i> Your access request is pending. A librarian will review it soon.
+      </div>
+    {% else %}
+      <div class="card mt-4">
+        <div class="card-body">
+          <h5 class="card-title">Request Access</h5>
+          <p class="card-text">You need permission to view this private collection.</p>
+          <form method="POST" action="{% url 'request_access_to_collection' collection.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Request Access</button>
+          </form>
+        </div>
+      </div>
+    {% endif %}
+  {% endif %}
+</div>
+{% endblock %}

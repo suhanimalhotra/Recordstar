@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Settings{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+      <h2>Account Settings</h2>
+    </div>
+    <div class="card-body">
+      <h4>Personal Information</h4>
+      <p><strong>Username:</strong> {{ user.username }}</p>
+      <p><strong>Email:</strong> {{ user.email }}</p>
+      
+      <hr>
+      <h4>Security</h4>
+      <p>
+        <a href="{% url 'account_change_password' %}" class="btn btn-outline-secondary">
+          Change Password
+        </a>
+      </p>
+      
+      <!-- Add additional settings sections as needed -->
+      
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% load bootstrap5 %}
+
+{% block extra_css %}
+<style>
+
+  /* Base state: white bg, purple border & text */
+  .btn-upgrade,
+  .btn-upgrade:visited {
+    background-color: white !important;
+    color: #a680e8 !important;
+    border: 1px solid #a680e8 !important;
+    transition: 
+      background-color 0.2s ease,
+      color 0.2s ease,
+      transform 0.1s ease;
+  }
+
+  /* On hover/focus/active: purple bg, white text */
+  .btn-upgrade:hover,
+  .btn-upgrade:focus,
+  .btn-upgrade:active {
+    background-color: #a680e8 !important;
+    color: white !important;
+    border-color: #a680e8 !important;
+    transform: translateY(-1px);
+  }
+  
+</style>
+{% endblock %}
+
+{% block title %}Librarians{% endblock %}
+
+{% block content %}
+{% if messages %}
+  <div class="container mt-3">
+    {% for message in messages %}
+      {% if "Upgraded" in message.message or "librarian" in message.message|lower %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+{% endif %}
+
+<div class="container mt-4">
+  <h2 class="mb-4" >Librarians</h2>
+  
+  {% if librarians %}
+    <div class="card mb-5">
+      <div class="card-header text-white" style="background-color: #7B3FE4 !important;">
+        <h5 class="mb-0" >Current Librarians</h5>
+      </div>
+      <div class="card-body">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+          {% for librarian in librarians %}
+            <div class="col">
+              <div class="card h-100">
+                <div class="card-body">
+                  <h5 class="card-title">{{ librarian.username }}</h5>
+                  <p class="card-text">
+                    <small class="text-muted">
+                      Joined: {{ librarian.date_joined|date:"F j, Y" }}
+                    </small>
+                  </p>
+                  {% if librarian.profile.image %}
+                    <img src="{{ librarian.profile.image.url }}" class="img-thumbnail" style="width: 100px; height: 100px; object-fit: cover;">
+                  {% endif %}
+                </div>
+                <div class="card-footer text-muted">
+                  <small>Librarian</small>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <div class="alert alert-info">
+      No librarians found in the system.
+    </div>
+  {% endif %}
+
+  {% if user.profile.account_type == "L" %}
+    <h2 class="mb-3">Upgrade Patron Accounts</h2>
+    {% if patrons %}
+      <div class="card">
+        <div class="card-header text-white" style="background-color: #a680e8 !important;">
+          <h5 class="mb-0">Patrons Available for Upgrade</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Username</th>
+                  <th>Joined</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for patron in patrons %}
+                <tr>
+                  <td>{{ patron.username }}</td>
+                  <td>{{ patron.date_joined|date:"F j, Y" }}</td>
+                  <td>
+                    <a href="{% url 'upgrade_user' patron.id %}" class="btn btn-sm btn-upgrade">
+                      Upgrade to Librarian
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <div class="alert alert-info">
+        No patron users available for upgrade.
+      </div>
+    {% endif %}
+  {% endif %}
+</div>
+{% endblock %}

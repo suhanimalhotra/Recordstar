@@ -1,0 +1,217 @@
+{% load static %}
+{% load socialaccount %}
+{% load bootstrap5 %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RecordStar</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <!-- Bootstrap CSS -->
+    {% bootstrap_css %}
+    
+    <style>
+      html, body {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      body {
+        margin: 0;
+        font-family: 'Open Sans', sans-serif;
+      }
+
+      main {
+        flex: 1;
+      }
+
+      .form-container {
+        max-width: 350px;
+        width: 100%;
+      }
+
+      .form-label {
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 0.3rem;
+      }
+
+      .form-control {
+        border: none;
+        border-bottom: 1px solid #ccc;
+        border-radius: 0;
+        box-shadow: none;
+        padding-left: 0;
+        font-size: 0.95rem;
+      }
+
+      .form-control:focus {
+        border-color: #000;
+        box-shadow: none;
+      }
+
+      .form-divider {
+        text-align: center;
+        margin: 1.5rem 0;
+        position: relative;
+        font-size: 0.85rem;
+        color: #888;
+      }
+
+      .form-footer {
+        font-size: 0.85rem;
+        color: #666;
+        text-align: center;
+        margin-top: 1.5rem;
+      }
+
+      .form-footer a {
+        text-decoration: underline;
+        font-weight: 600;
+      }
+
+      .form-check-label {
+        font-size: 0.85rem;
+      }
+
+      .btn-dark {
+        background-color: #000;
+        color: #fff;
+        border-radius: 8px;
+        padding: 0.6rem 0;
+        font-weight: 600;
+      }
+
+      .google-btn {
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        padding: 0.6rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        background-color: white;
+        color: #333;
+        transition: all 0.3s ease;
+      }
+
+      .google-btn:hover {
+        border-color: #7B3FE4;
+        color: #7B3FE4;
+        transform: scale(1.03);
+      }
+
+      .signin-btn {
+        background-color: #560BAD;
+        color: white;
+        font-weight: 600;
+        border: none;
+        border-radius: 8px;
+        padding: 0.6rem 0;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+      }
+
+      .signin-btn:hover {
+        background-color: #7B3FE4;
+        color: white;
+        transform: scale(1.03);
+      }
+
+      .create-link {
+        color: #AC46A1;
+        font-weight: 600;
+        text-decoration: underline;
+        transition: color 0.3s ease;
+      }
+
+      .create-link:hover {
+        color: #B44BB1;
+        cursor: pointer;
+      }
+
+      .link-hover {
+        transition: color 0.2s ease;
+      }
+
+      .link-hover:hover {
+        color: #AC46A1 !important;
+      }
+    </style>
+</head>
+<body>
+<main>
+  {% if user.is_authenticated %}
+      <div class="container mt-5">
+          <h1>RecordStar</h1>
+          <div class="account_info">
+              <div class="media">
+                  <img class="account_img" src="{{ user.profile.image.url }}" />
+              </div>
+              {% if user.profile.account_type == 'L' %}
+                  <h2>Welcome Librarian, {{ user.username }}</h2>
+              {% else %}
+                  <h2>Welcome Patron, {{ user.username }}</h2>
+              {% endif %}
+              <p>You can browse and request to borrow items.</p>
+              <a href="{% url 'dashboard' %}" class="btn btn-primary">Go to Dashboard</a>
+              <a href="{% url 'account_logout' %}" class="btn btn-secondary">Logout</a>
+          </div>
+      </div>
+  {% else %}
+  <div class="container-fluid vh-100">
+    <div class="row h-100">
+      <div class="col-md-6 position-relative d-flex align-items-start justify-content-center" style="padding-top: 100px; min-height: 100vh;">
+        <a href="{% url 'account_login' %}" class="position-absolute top-0 start-0 m-4" style="z-index: 0;">
+          <img src="{% static 'images/rs logo design.png' %}" alt="Logo" style="height: 37px;">
+        </a>
+
+        <div class="ms-auto mt-5 form-container" >
+          <h2 class="mb-2 fw-bold text-center">Welcome Back!</h2>
+          <p class="text-muted text-center mb-4">Please enter your login details.</p>
+
+          <a href="{% provider_login_url 'google' process='login' %}&prompt=select_account" class="google-btn w-100 mb-3">
+            <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo" style="height: 20px;">
+            Sign in with Google
+          </a>
+
+          <div class="text-muted text-center my-3" style="position: relative; font-size: 0.85rem;">
+            <span style="background: #fff; position: relative; z-index: 1; padding: 0 0.75rem;">or</span>
+            <hr style="position: absolute; top: 50%; left: 0; right: 0; z-index: 0; border-top: 1px solid #dee2e6;">
+          </div>
+          
+          <a href="{% url 'dashboard' %}" class="btn signin-btn w-100 mb-3">Browse as a Guest</a>
+
+        </div>
+      </div>
+
+      <div class="col-md-6 d-none d-md-flex justify-content-center align-items-center" style="background-color: #ffffff;">
+        <img src="{% static 'images/recordstar_logo10.jpg' %}" alt="Decorative Image" class="img-fluid" style="max-height: 80vh; max-width: 100%; object-fit: contain;">
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</main>
+
+<!-- Sticky Footer -->
+<footer class="text-center mt-3 mb-3 text-muted">
+  This system is a class project. It is not monitored, and no real information should be submitted.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

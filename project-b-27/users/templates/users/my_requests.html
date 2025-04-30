@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% load bootstrap5 %}
+{% block title %}My CD Requests{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>My CD Requests</h2>
+  
+  <ul class="nav nav-tabs" id="requestTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="sent-tab" data-bs-toggle="tab" data-bs-target="#sent" type="button" role="tab">Sent Requests</button>
+    </li>
+    {% if request.user.profile.is_librarian %}
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="received-tab" data-bs-toggle="tab" data-bs-target="#received" type="button" role="tab">Received Requests</button>
+    </li>
+    {% endif %}
+  </ul>
+  
+  <div class="tab-content mt-3">
+    <div class="tab-pane fade show active" id="sent" role="tabpanel">
+      <h4>Requests I've Sent</h4>
+      {% if sent_requests %}
+        <div class="list-group">
+          {% for request in sent_requests %}
+            <div class="list-group-item">
+              <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">{{ request.cd.title }}</h5>
+                <small>
+                  {% if request.status == 'pending' %}
+                    <span class="badge bg-warning">Pending</span>
+                  {% elif request.status == 'approved' %}
+                    <span class="badge bg-success">Approved</span>
+                  {% elif request.status == 'rejected' %}
+                    <span class="badge bg-danger">Rejected</span>
+                  {% elif request.status == 'returned' %}
+                    <span class="badge bg-info">Returned</span>
+                  {% endif %}
+                </small>
+              </div>
+              <p class="mb-1">Requested: {{ request.request_date|date:"F j, Y" }}</p>
+              
+              {% if request.status == 'approved' %}
+                <p>Due: {{ request.cd.due_date|date:"F j, Y" }}</p>
+                <form method="POST" action="{% url 'return_cd' request.id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-primary">Mark as Returned</button>
+                </form>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-muted">You haven't made any requests yet.</p>
+      {% endif %}
+    </div>
+    
+    {% if request.user.profile.is_librarian %}
+    <div class="tab-pane fade" id="received" role="tabpanel">
+      <h4>Library Requests</h4>
+      {% if received_requests %}
+        <div class="list-group">
+          {% for request in received_requests %}
+            <div class="list-group-item">
+              <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">{{ request.cd.title }}</h5>
+                <small>
+                  {% if request.status == 'pending' %}
+                    <span class="badge bg-warning">Pending</span>
+                  {% elif request.status == 'approved' %}
+                    <span class="badge bg-success">Approved</span>
+                  {% elif request.status == 'rejected' %}
+                    <span class="badge bg-danger">Rejected</span>
+                  {% elif request.status == 'returned' %}
+                    <span class="badge bg-info">Returned</span>
+                  {% endif %}
+                </small>
+              </div>
+              <p class="mb-1">Requested by: {{ request.requester.username }}</p>
+              <p class="mb-1">Requested for {{ request.requested_days }} days</p>
+              <p class="mb-1">Requested: {{ request.request_date|date:"F j, Y" }}</p>
+              
+              {% if request.status == 'pending' %}
+                <form method="POST" action="{% url 'respond_to_request' request.id %}" class="d-inline">
+                  {% csrf_token %}
+                  <input type="hidden" name="response" value="approve">
+                  <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                </form>
+                <form method="POST" action="{% url 'respond_to_request' request.id %}" class="d-inline">
+                  {% csrf_token %}
+                  <input type="hidden" name="response" value="reject">
+                  <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+                </form>
+              {% elif request.status == 'approved' %}
+                <p>Due: {{ request.cd.due_date|date:"F j, Y" }}</p>
+                <a href="{% url 'return_cd' request.id %}" class="btn btn-sm btn-primary">Mark as Returned</a>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-muted">There are no pending requests at this time.</p>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  .nav-tabs .nav-link.active {
+    background-color: #7B3FE4 !important;
+    color: #fff !important;
+    border-color: #7B3FE4 #7B3FE4 #fff !important;
+  }
+  
+  .nav-tabs .nav-link {
+    color: #555 !important;
+    border: 1px solid transparent !important;
+  }
+  
+  .nav-tabs .nav-link:hover {
+    color: #7B3FE4 !important;
+    background-color: #f5f5f5 !important;
+  }
+</style>
+{% endblock %}

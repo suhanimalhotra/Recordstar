@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% load bootstrap5 static %}
+
+{% block title %}Welcome, Guest{% endblock %}
+
+{% block content %}
+<div class="container">
+  <!-- Welcome Message -->
+  <div class="text-center mb-4">
+    <h1 class="fw-bold" style="color: #560BAD;">Welcome, Guest!</h1>
+    <p class="text-muted">You're browsing as a guest. You can view public CDs and collections.</p>
+  </div>
+
+  <!-- Public CDs Section -->
+  <h3 class="text-center mb-4">Browse Public CDs</h3>
+  {% if public_cds %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+      {% for cd in public_cds %}
+        <div class="col">
+          <div class="spotify-card h-100 text-center" style="cursor: pointer;" onclick="location.href='{% url 'public_item' cd.id %}'">
+            {% if cd.cover_image %}
+              <img src="{{ cd.cover_image.url }}" class="img-fluid rounded" alt="Cover image" style="height: 240px; width: 95%; object-fit: cover;">
+            {% else %}
+              <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                No Cover Image
+              </div>
+            {% endif %}
+            <div class="d-flex flex-column p-2" style="height: 100%;">
+              <h5 class="fw-bold mb-1" style="font-size: 1rem;">{{ cd.title }}</h5>
+              <p class="text-muted mb-1" style="font-size: 0.9rem;">{{ cd.artist }}</p>
+              <div class="mt-auto">
+                {% if cd.status == 'available' %}
+                  <div class="text-success fw-bold d-flex align-items-center justify-content-center gap-2">
+                    <i class="fas fa-check-circle"></i> Available to Checkout
+                  </div>
+                {% else %}
+                  <div class="text-danger fw-bold d-flex align-items-center justify-content-center gap-2">
+                    <i class="fas fa-times-circle"></i> Checked Out
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-center text-muted">No public CDs available.</p>
+  {% endif %}
+
+  <!-- Public Collections Section -->
+  <h3 class="text-center mb-4 mt-5">Browse Public Collections</h3>
+  {% if public_collections %}
+    <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-4">
+      {% for collection in public_collections %}
+        <div class="col">
+          <div class="spotify-card h-100 text-center" style="cursor: pointer;" onclick="location.href='{% url 'collection_detail' collection.id %}'">
+            <div class="d-flex flex-column p-2" style="height: 100%;">
+              <h5 class="fw-bold mb-1" style="font-size: 1rem;">{{ collection.name }}</h5>
+              <p class="text-muted mb-1" style="font-size: 0.9rem;">Public</p>
+              <div class="mt-auto">
+                <span class="badge bg-primary">Public Collection</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-center text-muted">No public collections available.</p>
+  {% endif %}
+</div>
+
+<style>
+  
+  .spotify-card {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+  }
+  
+  .spotify-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
+  
+  .card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+  }
+  
+  .card-body h5 {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .card-body h6 {
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+  }
+  .text-success, .text-danger {
+    font-size: 0.75rem;
+  }
+  
+  /* Optional slight shrink for text icons */
+  .fas.fa-check-circle, .fas.fa-times-circle {
+    font-size: 1rem;
+  }
+
+
+</style>
+
+{% endblock %}

@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results for "{{ query }}"{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h3 class="text-center mb-4">Search Results for "{{ query }}"</h3>
+
+  <h4 class="fw-bold">Records</h4>
+  {% if cd_results %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4 mb-4">
+      {% for cd in cd_results %}
+      <div class="col">
+        <div class="spotify-card h-100 text-center" onclick="window.location.href='{% url 'public_item' cd.id %}'">
+          <div class="p-2">
+            {% if cd.cover_image %}
+              <img src="{{ cd.cover_image.url }}" class="img-fluid rounded mb-2"
+                   alt="Cover image" style="width:95%; height: 200px; object-fit:cover;">
+            {% else %}
+              <div class="bg-light text-muted rounded mb-2 d-flex align-items-center justify-content-center"
+                   style="width:95%; height:200px;">No Cover Image</div>
+            {% endif %}
+            <h5 class="fw-bold mb-1" style="font-size:1rem;">{{ cd.title }}</h5>
+            <p class="text-muted mb-1" style="font-size:0.9rem;">{{ cd.artist }}</p>
+            <small class="text-muted">Code: {{ cd.unique_code }}</small>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-center text-muted">No Records found matching your query.</p>
+  {% endif %}
+
+  <h4 class="fw-bold mt-5">Collections</h4>
+  {% if collection_results %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4 mb-4">
+      {% for collection in collection_results %}
+        {% if collection.is_public %}
+          <div class="col">
+            <div class="spotify-card h-100 text-center"
+                 onclick="location.href='{% url 'collection_detail' collection.id %}'">
+              <div class="p-2">
+                {% if collection.cover_image %}
+                  <img src="{{ collection.cover_image.url }}" class="img-fluid rounded mb-2"
+                       style="width:95%; height: auto; object-fit:cover;" alt="Cover">
+                {% endif %}
+                <h5 class="fw-bold mb-1" style="font-size:1rem;">{{ collection.name }}</h5>
+                <span class="badge bg-success">Public Collection</span>
+              </div>
+            </div>
+          </div>
+        {% elif user.is_authenticated and collection.owner == user %}
+          <div class="col">
+            <div class="spotify-card h-100 text-center"
+                 onclick="location.href='{% url 'collection_detail' collection.id %}'">
+              <div class="p-2">
+                {% if collection.cover_image %}
+                  <img src="{{ collection.cover_image.url }}" class="img-fluid rounded mb-2"
+                       style="width:95%; height: auto; object-fit:cover;" alt="Cover">
+                {% endif %}
+                <h5 class="fw-bold mb-1" style="font-size:1rem;">{{ collection.name }}</h5>
+                <span class="badge bg-warning text-dark">Your Private</span>
+              </div>
+            </div>
+          </div>
+        {% elif user.is_authenticated and user in collection.allowed_users.all %}
+          <div class="col">
+            <div class="spotify-card h-100 text-center"
+                 onclick="location.href='{% url 'collection_detail' collection.id %}'">
+              <div class="p-2">
+                {% if collection.cover_image %}
+                  <img src="{{ collection.cover_image.url }}" class="img-fluid rounded mb-2"
+                       style="width:95%; height: auto; object-fit:cover;" alt="Cover">
+                {% endif %}
+                <h5 class="fw-bold mb-1" style="font-size:1rem;">{{ collection.name }}</h5>
+                <span class="badge bg-info">Access Granted</span>
+              </div>
+            </div>
+          </div>
+        {% elif user.is_authenticated and user.profile.is_librarian %}
+          <div class="col">
+            <div class="spotify-card h-100 text-center"
+                 onclick="location.href='{% url 'collection_detail' collection.id %}'">
+              <div class="p-2">
+                {% if collection.cover_image %}
+                  <img src="{{ collection.cover_image.url }}" class="img-fluid rounded mb-2"
+                       style="width:95%; height: auto; object-fit:cover;" alt="Cover">
+                {% endif %}
+                <h5 class="fw-bold mb-1" style="font-size:1rem;">{{ collection.name }}</h5>
+                <span class="badge bg-primary">Librarian Access</span>
+              </div>
+            </div>
+          </div>
+        {% else %}
+          <div class="col">
+            <div class="spotify-card h-100 text-center"
+                 data-bs-toggle="modal"
+                 data-bs-target="#requestAccessModal"
+                 data-request-url="{% url 'request_access_to_collection' collection.id %}">
+              <div class="p-2">
+                <h5 class="fw-bold mb-1" style="font-size:1rem;">{{ collection.name }}</h5>
+                <p class="text-muted mb-1" style="font-size:0.9rem;">Private 🔒</p>
+                <span class="badge bg-secondary">Request Access</span>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-center text-muted">No collections found matching your query.</p>
+  {% endif %}
+</div>
+
+
+<!-- Request Access Modal -->
+<div class="modal fade" id="requestAccessModal" tabindex="-1" aria-labelledby="requestAccessLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-2xl shadow-lg">
+      <div class="modal-header border-0">
+        <h5 class="modal-title" id="requestAccessLabel">Access Required</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        You must request access into this private collection.
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <a id="modalRequestLink" href="#" class="btn btn-primary">Request Access</a>
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+  .spotify-card {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  }
+  .spotify-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
+  .card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+  }
+  .card-body h5 { font-size: 1rem; margin-bottom: 0.25rem; }
+  .card-body h6 { font-size: 0.85rem; margin-bottom: 1rem; }
+  .text-success, .text-danger { font-size: 0.75rem; }
+  .fas.fa-check-circle, .fas.fa-times-circle { font-size: 1rem; }
+
+</style>
+
+<script>
+  var reqModal = document.getElementById('requestAccessModal');
+  reqModal.addEventListener('show.bs.modal', function (event) {
+    var triggerCard = event.relatedTarget;
+    var url = triggerCard.getAttribute('data-request-url');
+    reqModal.querySelector('#modalRequestLink').setAttribute('href', url);
+  });
+</script>
+{% endblock %}

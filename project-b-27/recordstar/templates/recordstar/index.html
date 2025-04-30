@@ -1,0 +1,53 @@
+{% load static %}
+{% load socialaccount %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RecordStar</title>
+    <link rel="stylesheet" href="{% static 'index.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1 class="title"> RecordStar </h1>
+    </div>
+    {% if user.is_authenticated %}
+        <div class="account_info">
+            {% comment %}
+            Check the user's profile to determine their account type.
+            {% endcomment %}
+            <div class="media">
+                <img
+                    class="account_img"
+                    src="{{ user.profile.image.url }}"
+                />
+            </div>
+            {% if user.profile.account_type == 'L' %}
+                <form method="post" enctype="multipart/form-data" action="{% url 'update_profile_picture' %}">
+                    {% csrf_token %}
+                    <input type="file" name="profile_picture" accept="image/*">
+                    <button type="submit">Upload</button>
+                </form>
+                <h2>Welcome Librarian, {{ user.username }}</h2>
+            {% else %}
+                <form method="post" enctype="multipart/form-data" action="{% url 'update_profile_picture' %}">
+                    {% csrf_token %}
+                    <input type="file" name="profile_picture" accept="image/*">
+                    <button type="submit">Upload</button>
+                </form>
+                <h2>Welcome Patron, {{ user.username }}</h2>
+            {% endif %}
+            <a href="{% url 'dashboard' %}"> Go to Dashboard </a>
+            <a href="{% url 'account_logout' %}" class="logout_button"> Logout </a>
+        </div>
+    {% else %}
+        <div class="account_info">
+            <a href="{% provider_login_url 'google' %}" class="login_button">
+                Login with Google
+             </a>
+        </div>
+    {% endif %}
+</body>
+</html>
